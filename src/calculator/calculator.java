@@ -1,38 +1,48 @@
 package calculator;
 import java.util.Scanner;
+import java.util.logging.Logger;
+
 
 public class calculator{
+	static Logger log = Logger.getLogger(calculator.class.getName());
+	static final int x1=10;
     public static class Command{
         String cmd_line;
-        String[] cmd_group;
+        String[] cmd_group0;
         Scanner scanner=new Scanner(System.in);
         String exp_bk;
         String[] exp_group;
-        int var[]=new int [256];
+        int[] var=new int [256];
         String exp_str;
         int exp_int;
         String dao_str;
         int dao_int;
 
+        /**set a method 
+         * @param ch
+         * @return boolean*/
         boolean is_num(char ch){
             if(ch>=48 && ch<=57)
                 return true;
-            else
+            else{
                 return false;
+            }
         }
 
         boolean is_letter(char ch){
-            if((ch>=65 && ch<=90)||(ch>=97 && ch<=122))
+            if(ch>=65 && ch<=90||ch>=97 && ch<=122)
                 return true;
             else
                 return false;
         }
 
         boolean is_cal(char ch){
+        	boolean i=false;
             if(ch=='+'||ch=='*')
-                return true;
-            else
-                return false;
+            	i =true;
+             
+            return i;
+            
         }
 
         boolean is_nextvalid(char ch,char next_ch){
@@ -60,16 +70,17 @@ public class calculator{
                 var[i]=0;
         }
 
-        void input(){
+        void input() {
             cmd_line=scanner.nextLine();
             if(cmd_line.equals("quit"))
                 System.exit(0);
-            cmd_group=cmd_line.split(" ");
+            cmd_group0=cmd_line.split(" ");
         }
 
-        boolean read_exp(String cmd_line){
-            int exp_len=cmd_line.length();
-            char exp_first=cmd_line.charAt(0);
+        boolean read_exp(final String cmd_linea) {
+            int exp_len;
+            exp_len=cmd_linea.length();
+            char exp_first=cmd_linea.charAt(0);
 
             if(is_letter(exp_first))
                 var[exp_first]=-1;
@@ -77,8 +88,8 @@ public class calculator{
                 return false;
 
             for(int i=0;i<exp_len-1;i++){
-                char cur=cmd_line.charAt(i);
-                char next=cmd_line.charAt(i+1);
+                char cur=cmd_linea.charAt(i);
+                char next=cmd_linea.charAt(i+1);
 
                 if(is_nextvalid(cur,next)){
                     if(is_letter(next)&&var[next]==0)
@@ -86,33 +97,36 @@ public class calculator{
                 }else
                     return  false;
             }
-            exp_bk=cmd_line;
+            exp_bk=cmd_linea;
             return true;
         }
 
         String cha_str(String str){
             int len=str.length();
             char ch=str.charAt(len-1);
-
-            if(ch=='+'||ch=='*')
-                str=str.substring(0,len-1);
-            return str;
+            String str_temp;
+            str_temp=str;
+            if(ch=='+'||ch=='*'){
+                str_temp=str.substring(0,len-1);
+            }
+            return str_temp;
         }
 
-        boolean cal_exp(){
-            int cmdgrp_len=cmd_group.length;
+        private boolean calexp(){
+            int cmdgrp_len=cmd_group0.length;
             int expgrp_len=exp_group.length;
+            
 
             for(int i=1;i<cmdgrp_len;i++){
-                String item=cmd_group[i];
-                int item_len=item.length();
+                String item=cmd_group0[i];
+                
                 int item_value=0;
-
                 if(var[item.charAt(0)]==0 || item.charAt(1)!='=')
                     return false;
+                int item_len=item.length();
                 for(int j=2;j<item_len;j++){
                     if(is_num(item.charAt(j)))
-                        item_value=10*item_value+(item.charAt(j)-48);
+                        item_value=x1*item_value+(item.charAt(j)-48);
                     else
                         return false;
                 }
@@ -188,7 +202,8 @@ public class calculator{
                     }
                     if(num!=0)
                         item_int*=num;
-                    if(j<item_len&&is_letter(item.charAt(j))&&item.charAt(j)!=ch)
+                    if(j<item_len&&is_letter(item.charAt(j))
+                    		&&item.charAt(j)!=ch)
                         item_str=item_str.concat(String.valueOf(item.charAt(j))).concat("*");
                 }
                 if(item_str.equals(""))
@@ -208,9 +223,10 @@ public class calculator{
         }
 
         boolean exec_cmd(){
-            char cmd_flag=cmd_line.charAt(0);
+        	
+            char cmd_flag0=cmd_line.charAt(0);
 
-            if(cmd_flag!='!'){
+            if(cmd_flag0!='!'){
                 var_clear();
                 if(read_exp(cmd_line)){
                     exp_group = cmd_line.split("\\+");
@@ -220,26 +236,26 @@ public class calculator{
                     read_exp(exp_bk);
                     return false;
                 }
-            }else if(cmd_group[0].equals("!simplify")){
+            }else if(cmd_group0[0].equals("!simplify")){
                 exp_int=0;
                 exp_str="";
                 var_clear();
                 read_exp(exp_bk);
-                if(!cal_exp()){
+                if(!calexp()){
                     var_clear();
                     read_exp(exp_bk);
                     return false;
                 }else {
                     if (exp_str.equals(""))
-                        System.out.println(exp_int);
+                        System.out.print(exp_int);
                     else
                         System.out.println(exp_str);
                 }
-            }else if(cmd_group[0].startsWith("!d/d")&&cmd_group[0].length()==5&&
-                    is_letter(cmd_group[0].charAt(4))&&var[cmd_group[0].charAt(4)]!=0){
+            }else if(cmd_group0[0].startsWith("!d/d")&&cmd_group0[0].length()==5&&
+                    is_letter(cmd_group0[0].charAt(4))&&var[cmd_group0[0].charAt(4)]!=0){
                 dao_int=0;
                 dao_str="";
-                qiudao(cmd_group[0].charAt(4));
+                qiudao(cmd_group0[0].charAt(4));
                 if(dao_str.equals(""))
                     System.out.println(dao_int);
                 else
@@ -251,14 +267,14 @@ public class calculator{
 
     }
 
-    public static void main(String[] args){
+    public static void main(final String[] args){
         Command cmd=new Command();
 
         while(true) {
             System.out.print('>');
             cmd.input();
             if(!cmd.exec_cmd())
-                System.out.println("输入错误");
+                log.fine("输入错误");
         }
     }
 
